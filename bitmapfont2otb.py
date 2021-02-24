@@ -11,7 +11,7 @@ assert len(sys.argv) == 3, "Must provide a filename: PCF, BDF, or SFD containing
 cm = fontforge.open(infile)
 out_bdf = outfile.replace(".otb", ".bdf")
 cm.generate(out_bdf)
-bdff = glob.glob(out_bdf.split(".")[0]+"*.bdf")
+bdff = glob.glob(out_bdf.split(".")[0]+"*-*.bdf")
 os.rename(bdff[0], out_bdf)
 f = fontforge.font()
 f.ascent = cm.ascent
