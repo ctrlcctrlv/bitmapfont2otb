@@ -50,7 +50,7 @@ for i, g in enumerate(bdf.glyphs):
         y += 1
     ffg = f.createChar(-1,gn)
     ffg.foreground = l
-    ffg.width = int(block_size*(x+w))
+    ffg.width = int(block_size*(g.advance))
 
 f.removeOverlap()
 f.encoding = "UnicodeFull"
