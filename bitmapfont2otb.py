@@ -52,10 +52,11 @@ for i, g in enumerate(bdf.glyphs):
     ffg.foreground = l
     ffg.width = int(block_size*(g.advance))
 
+f.selection.all()
 f.removeOverlap()
+f.simplify()
 f.encoding = "UnicodeFull"
 f.encoding = "compacted"
-f.simplify()
 f.importBitmaps(out_bdf)
 f.save("output.sfd")
 out_otf = out_bdf.replace(".bdf", ".otf")
