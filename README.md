@@ -6,6 +6,6 @@ New versions of HarfBuzz no longer support BDF, so this is necessary. However, e
 
 ## Requirements
 
-* FontForge
+* FontForge — not installable via Pip (as of 9 November 2021)!
 * [`bdflib`](https://pypi.org/project/bdflib/)
 * [`prettytable`](https://pypi.org/project/bdflib/)
