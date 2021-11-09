@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import argparse
 import prettytable
 import sys
 try:
@@ -10,10 +11,17 @@ import glob
 import os
 from bdflib import reader as bdfreader
 
+ap = argparse.ArgumentParser(description="Convert bitmap font to OpenType font with squares in outlines and bitmap strike")
+ap.add_argument("--no-rename", action="store_true", help="Don't rename glyphs based on their encodings, nor re-encode glyphs based on their names")
+ap.add_argument("infile")
+ap.add_argument("outfile")
+args = ap.parse_args()
+
 def rename_glyphs(font):
+    global args
+    if args.no_rename: return
     for g in font.glyphs():
         oldenc = g.unicode
-        if oldenc == -1: return
         oldname = g.glyphname
         newname = fontforge.nameFromUnicode(oldenc, "Adobe Glyph List")
         newenc = fontforge.unicodeFromName(oldname)
