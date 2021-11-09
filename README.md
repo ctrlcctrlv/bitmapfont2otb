@@ -8,3 +8,4 @@ New versions of HarfBuzz no longer support BDF, so this is necessary. However, e
 
 * FontForge
 * [`bdflib`](https://pypi.org/project/bdflib/)
+* [`prettytable`](https://pypi.org/project/bdflib/)

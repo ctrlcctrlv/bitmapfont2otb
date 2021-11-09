@@ -1,0 +1,2 @@
+bdflib>=1.1
+prettytable>=2.4
