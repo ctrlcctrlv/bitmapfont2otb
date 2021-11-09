@@ -10,11 +10,27 @@ import glob
 import os
 from bdflib import reader as bdfreader
 
+def rename_glyphs(font):
+    for g in font.glyphs():
+        oldenc = g.unicode
+        if oldenc == -1: return
+        oldname = g.glyphname
+        newname = fontforge.nameFromUnicode(oldenc, "Adobe Glyph List")
+        newenc = fontforge.unicodeFromName(oldname)
+        if newenc == -1: return
+        if oldname != newname and g.altuni is None:
+            print(("Changing glyph name {} to {} (because encoding is U+{:04X}"+
+                   " && !altuni)").format(oldname, newname, g.unicode), file=sys.stderr)
+        if g.altuni is None:
+            g.glyphname = newname
+            g.unicode = newenc
+
 assert len(sys.argv) == 3, "Must provide a filename: PCF, BDF, or SFD containing a bitmap font, and an output OTB filename"
 (_, infile, outfile) = sys.argv
 
 cm = fontforge.open(infile)
 out_bdf = outfile.replace(".otb", ".bdf")
+rename_glyphs(cm)
 cm.generate(out_bdf)
 bdff = glob.glob(out_bdf.split(".")[0]+"*-*.bdf")
 os.rename(bdff[0], out_bdf)
@@ -70,7 +86,11 @@ f.simplify()
 f.encoding = "UnicodeFull"
 f.encoding = "compacted"
 f.importBitmaps(out_bdf)
+try:
+    os.unlink("output.sfd")
+except: pass
 f.save("output.sfd")
 out_otf = out_bdf.replace(".bdf", ".otf")
+rename_glyphs(f)
 f.generate(out_otf, flags=("opentype",), bitmap_type="otf")
 os.rename(out_otf, outfile)
