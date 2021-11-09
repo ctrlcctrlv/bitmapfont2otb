@@ -33,11 +33,8 @@ def rename_glyphs(font):
             g.glyphname = newname
             g.unicode = newenc
 
-assert len(sys.argv) == 3, "Must provide a filename: PCF, BDF, or SFD containing a bitmap font, and an output OTB filename"
-(_, infile, outfile) = sys.argv
-
-cm = fontforge.open(infile)
-out_bdf = outfile.replace(".otb", ".bdf")
+cm = fontforge.open(args.infile)
+out_bdf = args.outfile.replace(".otb", ".bdf")
 rename_glyphs(cm)
 cm.generate(out_bdf)
 bdff = glob.glob(out_bdf.split(".")[0]+"*-*.bdf")
@@ -106,4 +103,4 @@ f.save("output.sfd")
 out_otf = out_bdf.replace(".bdf", ".otf")
 rename_glyphs(f)
 f.generate(out_otf, flags=("opentype",), bitmap_type="otf")
-os.rename(out_otf, outfile)
+os.rename(out_otf, args.outfile)
