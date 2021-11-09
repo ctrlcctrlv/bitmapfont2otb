@@ -49,6 +49,10 @@ for key, val in bdf.properties.items():
 print(t, file=sys.stderr)
 
 block_size = f.em / bdf[b"POINT_SIZE"]
+quad_width = bdf.properties[b"QUAD_WIDTH"]
+
+def is_monospace(bdf):
+    return bdf.properties[b"SPACING"] in [b"C", b"M"]
 
 def pos_to_contour(x, y):
     pos_x, pos_y = x*block_size, y*block_size
@@ -78,7 +82,10 @@ for i, g in enumerate(bdf.glyphs):
         y += 1
     ffg = f.createChar(-1,gn)
     ffg.foreground = l
-    ffg.width = int(block_size*(g.advance))
+    if is_monospace(bdf):
+        ffg.width = int(block_size*quad_width)
+    else:
+        ffg.width = int(block_size*(g.advance))
 
 f.selection.all()
 f.removeOverlap()
