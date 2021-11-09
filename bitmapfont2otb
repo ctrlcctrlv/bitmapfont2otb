@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import fontforge
+import prettytable
 import glob
 import os
 import sys
@@ -19,6 +20,13 @@ f.descent = cm.descent
 f.importBitmaps(out_bdf, True)
 with open(out_bdf, "rb") as bdff:
     bdf = bdfreader.read_bdf(bdff)
+
+t = prettytable.PrettyTable(['BDF Property', 'Value'])
+for key, val in bdf.properties.items():
+    k = key.decode('latin1') if isinstance(key, bytes) else repr(key)
+    v = val.decode('latin1') if isinstance(val, bytes) else repr(val)
+    t.add_row([k, v])
+print(t, file=sys.stderr)
 
 block_size = f.em / bdf[b"POINT_SIZE"]
 
