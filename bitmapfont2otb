@@ -88,8 +88,6 @@ for i, g in enumerate(bdf.glyphs):
         ffg.width = int(block_size*(g.advance))
 
 f.selection.all()
-f.removeOverlap()
-f.simplify()
 f.encoding = "UnicodeFull"
 f.encoding = "compacted"
 f.importBitmaps(out_bdf)
