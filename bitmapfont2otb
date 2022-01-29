@@ -34,7 +34,18 @@ def rename_glyphs(font):
             g.unicode = newenc
 
 cm = fontforge.open(args.infile)
-out_bdf = args.outfile.replace(".otb", ".bdf")
+out_ext_i = args.outfile.rindex(".")
+out_ext = args.outfile[out_ext_i:]
+if out_ext == ".otb" or out_ext == ".otf":
+    output_req = "opentype"
+elif out_ext == ".ttf" or out_ext == ".ttb":
+    output_req = "truetype"
+else:
+    print("Output format must be one of: otb, otf, ttf, ttb (file ext. mandatory)", file=sys.stderr)
+    sys.exit(1)
+out_bdf = args.outfile.replace(out_ext, ".bdf")
+if out_ext[-1] == "b":
+    out_ext[-1] = "f"
 rename_glyphs(cm)
 cm.generate(out_bdf)
 bdff = glob.glob(out_bdf.split(".")[0]+"*-*.bdf")
@@ -53,7 +64,7 @@ for key, val in bdf.properties.items():
     t.add_row([k, v])
 print(t, file=sys.stderr)
 
-block_size = f.em / bdf[b"POINT_SIZE"]
+block_size = f.em / bdf[b"PIXEL_SIZE"]
 quad_width = bdf.properties[b"QUAD_WIDTH"]
 
 def is_monospace(bdf):
@@ -99,8 +110,11 @@ f.importBitmaps(out_bdf)
 try:
     os.unlink("output.sfd")
 except: pass
+if out_ext == ".ttf":
+    f.is_quadratic = True
+    output_req = "opentype"
 f.save("output.sfd")
-out_otf = out_bdf.replace(".bdf", ".otf")
+out_otf = out_bdf.replace(".bdf", out_ext)
 rename_glyphs(f)
-f.generate(out_otf, flags=("opentype",), bitmap_type="otf")
+f.generate(out_otf, flags=(output_req,), bitmap_type="otf")
 os.rename(out_otf, args.outfile)
