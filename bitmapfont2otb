@@ -111,8 +111,14 @@ for i, g in enumerate(bdf.glyphs):
         ffg.width = int(block_size*(g.advance))
 
 f.selection.all()
-f.encoding = "UnicodeFull"
-f.encoding = "compacted"
+known_encodings = {
+    b"KOI8": "KOI8-R"
+}
+bdf_encoding = bdf.properties[b"CHARSET_REGISTRY"]
+if bdf_encoding not in known_encodings:
+    f.encoding = "UnicodeFull"
+else:
+    f.encoding = known_encodings[bdf_encoding]
 f.importBitmaps(out_bdf)
 try:
     os.unlink("output.sfd")
@@ -122,6 +128,7 @@ if out_ext == ".ttf":
     output_req = "opentype"
 f.save("output.sfd")
 out_otf = out_bdf.replace(".bdf", out_ext)
+f.encoding = "UnicodeFull"
 rename_glyphs(f)
 f.generate(out_otf, flags=(output_req,), bitmap_type="otf")
 os.rename(out_otf, args.outfile)
