@@ -24,9 +24,12 @@ def rename_glyphs(font):
     for g in font.glyphs():
         oldenc = g.unicode
         oldname = g.glyphname
-        newname = fontforge.nameFromUnicode(oldenc, "Adobe Glyph List")
+        try:
+            newname = fontforge.nameFromUnicode(oldenc, "AGL without afii")
+        except ValueError:
+            continue
         newenc = fontforge.unicodeFromName(oldname)
-        if newenc == -1: return
+        if newenc == -1: continue
         if oldname != newname and g.altuni is None:
             print(("Changing glyph name {} to {} (because encoding is U+{:04X}"+
                    " && !altuni)").format(oldname, newname, g.unicode), file=sys.stderr)
