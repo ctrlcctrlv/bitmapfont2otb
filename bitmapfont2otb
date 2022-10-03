@@ -45,7 +45,7 @@ else:
     sys.exit(1)
 out_bdf = args.outfile.replace(out_ext, ".bdf")
 if out_ext[-1] == "b":
-    out_ext[-1] = "f"
+    out_ext = out_ext[:-1] + "f"
 rename_glyphs(cm)
 cm.generate(out_bdf)
 bdff = glob.glob(out_bdf.split(".")[0]+"*-*.bdf")
