@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import prettytable
+import re
 import sys
 try:
     import fontforge
@@ -48,8 +49,11 @@ if out_ext[-1] == "b":
     out_ext = out_ext[:-1] + "f"
 rename_glyphs(cm)
 cm.generate(out_bdf)
-bdff = glob.glob(out_bdf.split(".")[0]+"*-*.bdf")
-os.rename(bdff[0], out_bdf)
+for bdf in glob.glob("*.bdf"):
+    if bdf.startswith(out_bdf.split(".")[0] + "-") and re.search(r"\d+\.bdf$"):
+        out_bdf = out_bdf.replace(".bdf","_ffout.bdf")
+        os.rename(bdf, out_bdf)
+        break
 f = fontforge.font()
 f.ascent = cm.ascent
 f.descent = cm.descent
