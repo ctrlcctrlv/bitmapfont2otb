@@ -109,7 +109,17 @@ for i, g in enumerate(bdf.glyphs):
             x += 1
         x = orig_x
         y += 1
-    ffg = f.createChar(-1,gn)
+    if re.match(r'^\d+$', gn):
+        e = int(gn, 10)
+    else:
+        e = -1
+    if gn in f:
+        f.removeGlyph((-1,gn))
+    elif e in f and e != -1:
+        try:
+            f.removeGlyph(f[e])
+        except: pass
+    ffg = f.createChar(e,gn)
     ffg.foreground = l
     if is_monospace(bdf):
         ffg.width = int(block_size*quad_width)
