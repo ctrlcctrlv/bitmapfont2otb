@@ -90,7 +90,14 @@ for key, val in bdf.properties.items():
     t.add_row([k, v])
 print(t, file=sys.stderr)
 
-block_size = f.em / bdf[b"PIXEL_SIZE"]
+if b"PIXEL_SIZE" in bdf.properties:
+    pxsz = bdf.properties[b"PIXEL_SIZE"]
+elif all([e in bdf.properties for e in [b"FONT_ASCENT", b"FONT_DESCENT"]]):
+    pxsz = bdf.properties[b"FONT_ASCENT"] + bdf.properties[b"FONT_DESCENT"]
+else:
+    raise ValueError(bdf)
+
+block_size = f.em / pxsz
 quad_width = bdf.properties[b"QUAD_WIDTH"]
 
 def is_monospace(bdf):
