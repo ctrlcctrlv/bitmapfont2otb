@@ -101,7 +101,11 @@ block_size = f.em / pxsz
 quad_width = bdf.properties[b"QUAD_WIDTH"]
 
 def is_monospace(bdf):
-    return bdf.properties[b"SPACING"] in [b"C", b"M"]
+    if b"SPACING" in bdf.properties:
+        return bdf.properties[b"SPACING"] in [b"C", b"M"]
+    else:
+        advances = [g.advance for g in bdf.glyphs]
+        return len(advances) > 0 and all([a == advances[0] or a == 0 for a in advances])
 
 def pos_to_contour(x, y):
     pos_x, pos_y = x*block_size, y*block_size
@@ -113,6 +117,7 @@ def pos_to_contour(x, y):
     c.closed = True
     return c
 
+is_mono = is_monospace(bdf)
 for i, g in enumerate(bdf.glyphs):
     gn = g.name.decode("utf-8")
     x, y, w, h = g.get_bounding_box()
@@ -141,7 +146,7 @@ for i, g in enumerate(bdf.glyphs):
         except: pass
     ffg = f.createChar(e,gn)
     ffg.foreground = l
-    if is_monospace(bdf):
+    if is_mono:
         ffg.width = int(block_size*quad_width)
     else:
         ffg.width = int(block_size*(g.advance))
