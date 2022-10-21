@@ -38,6 +38,11 @@ def rename_glyphs(font):
             g.glyphname = newname
             g.unicode = newenc
 
+def clean_glyph_names(font):
+    for g in font.glyphs():
+        if '$' in g.glyphname:
+            g.glyphname = g.glyphname.replace('$','')
+
 cm = fontforge.open(args.infile)
 out_ext_i = args.outfile.rindex(".")
 out_ext = args.outfile[out_ext_i:]
@@ -121,6 +126,7 @@ if bdf_encoding not in known_encodings:
 else:
     f.encoding = known_encodings[bdf_encoding]
 f.importBitmaps(out_bdf)
+clean_glyph_names(f)
 if not args.keep_temp_sfd:
     try:
         os.unlink("output.sfd")
