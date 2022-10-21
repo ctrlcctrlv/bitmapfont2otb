@@ -14,6 +14,7 @@ from bdflib import reader as bdfreader
 
 ap = argparse.ArgumentParser(description="Convert bitmap font to OpenType font with squares in outlines and bitmap strike")
 ap.add_argument("--no-rename", action="store_true", help="Don't rename glyphs based on their encodings, nor re-encode glyphs based on their names")
+ap.add_argument("--keep-temp-sfd", action="store_true", help="Keep temporary SFD for debugging")
 ap.add_argument("infile")
 ap.add_argument("outfile")
 args = ap.parse_args()
@@ -120,9 +121,10 @@ if bdf_encoding not in known_encodings:
 else:
     f.encoding = known_encodings[bdf_encoding]
 f.importBitmaps(out_bdf)
-try:
-    os.unlink("output.sfd")
-except: pass
+if not args.keep_temp_sfd:
+    try:
+        os.unlink("output.sfd")
+    except: pass
 if out_ext == ".ttf":
     f.is_quadratic = True
     output_req = "opentype"
