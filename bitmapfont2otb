@@ -43,6 +43,19 @@ def clean_glyph_names(font):
         if '$' in g.glyphname:
             g.glyphname = g.glyphname.replace('$','')
 
+def default_char(bdf, f):
+    if b"DEFAULT_CHAR" in bdf.properties:
+        notdef = bdf.properties[b"DEFAULT_CHAR"]
+        if not notdef in f: return
+        ndg = f[notdef]
+        fore = ndg.layers["Fore"]
+        if f[0].unicode == 0:
+            f.removeGlyph(f[0])
+        notdef = f.createChar(0, ".notdef")
+        notdef.layers["Fore"] = fore
+        notdef.width = ndg.width
+        f.removeGlyph(ndg)
+
 cm = fontforge.open(args.infile)
 out_ext_i = args.outfile.rindex(".")
 out_ext = args.outfile[out_ext_i:]
@@ -144,6 +157,7 @@ if not args.keep_temp_sfd:
 if out_ext == ".ttf":
     f.is_quadratic = True
     output_req = "opentype"
+default_char(bdf, f)
 f.save("output.sfd")
 out_otf = out_bdf.replace(".bdf", out_ext)
 f.encoding = "UnicodeFull"
