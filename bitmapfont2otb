@@ -5,8 +5,8 @@ import re
 import sys
 try:
     import fontforge
-except ImportError:
-    print("FontForge (fontforge.org) must be separately installed, not available as pip package!", file=sys.stderr)
+except ImportError as ie:
+    print(f"FontForge (fontforge.org) must be separately installed, not available as pip package! {ie}", file=sys.stderr)
     sys.exit(1)
 import glob
 import os
