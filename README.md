@@ -1,4 +1,4 @@
-# `bitmapfont2otb`
+# `bitmapfont2otb` v2.3.0
 
 This tool converts a bitmap font in BDF, PCF, or SFD format, into an OTB (OpenType Bitmap) font.
 
