@@ -10,11 +10,13 @@ except ImportError as ie:
     sys.exit(1)
 import glob
 import os
+import warnings
 from bdflib import reader as bdfreader
 
 ap = argparse.ArgumentParser(description="Convert bitmap font to OpenType font with squares in outlines and bitmap strike")
 ap.add_argument("--no-rename", action="store_true", help="Don't rename glyphs based on their encodings, nor re-encode glyphs based on their names")
 ap.add_argument("--keep-temp-sfd", action="store_true", help="Keep temporary SFD for debugging")
+ap.add_argument("--ignore-encoding", action="store_true", help="Ignore encoding?")
 ap.add_argument("infile")
 ap.add_argument("outfile")
 args = ap.parse_args()
@@ -155,10 +157,12 @@ f.selection.all()
 known_encodings = {
     b"KOI8": "KOI8-R"
 }
+ignored_encodings = []
 bdf_encoding = bdf.properties.get(b"CHARSET_REGISTRY")
-if bdf_encoding not in known_encodings:
+ignore_encoding = bdf_encoding in ignored_encodings or args.ignore_encoding
+if bdf_encoding not in known_encodings and not ignore_encoding:
     f.encoding = "UnicodeFull"
-else:
+elif not ignore_encoding:
     f.encoding = known_encodings[bdf_encoding]
 f.importBitmaps(out_bdf)
 clean_glyph_names(f)
