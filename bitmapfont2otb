@@ -98,7 +98,7 @@ else:
     raise ValueError(bdf)
 
 block_size = f.em / pxsz
-quad_width = bdf.properties[b"QUAD_WIDTH"]
+quad_width = bdf.properties[b"QUAD_WIDTH"] if b"QUAD_WIDTH" in bdf.properties else pxsz
 
 def is_monospace(bdf):
     if b"SPACING" in bdf.properties:
