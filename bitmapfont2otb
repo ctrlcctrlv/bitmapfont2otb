@@ -139,7 +139,7 @@ for i, g in enumerate(bdf.glyphs):
     else:
         e = -1
     if gn in f:
-        f.removeGlyph((-1,gn))
+        f.removeGlyph(-1,gn)
     elif e in f and e != -1:
         try:
             f.removeGlyph(f[e])
