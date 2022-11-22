@@ -93,7 +93,7 @@ print(t, file=sys.stderr)
 if b"PIXEL_SIZE" in bdf.properties:
     pxsz = bdf.properties[b"PIXEL_SIZE"]
 elif all([e in bdf.properties for e in [b"FONT_ASCENT", b"FONT_DESCENT"]]):
-    pxsz = bdf.properties[b"FONT_ASCENT"] + bdf.properties[b"FONT_DESCENT"]
+    pxsz = int(bdf.properties[b"FONT_ASCENT"]) + int(bdf.properties[b"FONT_DESCENT"])
 else:
     raise ValueError(bdf)
 
