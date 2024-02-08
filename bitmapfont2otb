@@ -151,10 +151,12 @@ for i, g in enumerate(bdf.glyphs):
         except: pass
     ffg = f.createChar(e,gn)
     ffg.foreground = l
-    if is_mono:
-        ffg.width = int(block_size*quad_width)
+    if g.bbW > 0:
+        ffg.width = int(block_size * g.bbW)
+    elif is_mono:
+        ffg.width = int(block_size * quad_width)
     else:
-        ffg.width = int(block_size*(g.advance))
+        ffg.width = int(block_size * g.advance)
 
 f.selection.all()
 known_encodings = {
