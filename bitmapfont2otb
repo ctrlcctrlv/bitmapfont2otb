@@ -29,7 +29,8 @@ def rename_glyphs(font):
         oldname = g.glyphname
         try:
             newname = fontforge.nameFromUnicode(oldenc, "AGL without afii")
-        except ValueError:
+        except ValueError as err:
+            print("Warning: couldn't find appropriate name for glyph", err, file=sys.stderr)
             continue
         newenc = fontforge.unicodeFromName(oldname)
         if newenc == -1: continue
@@ -138,6 +139,8 @@ for i, g in enumerate(bdf.glyphs):
         y += 1
     if re.match(r'^\d+$', gn):
         e = int(gn, 10)
+    elif mtch := re.match(r'U\+(?P<code>[0-9A-F]{1,8})', gn):
+        e = int(mtch.group('code'), 16)
     else:
         e = -1
     if gn in f:
@@ -148,10 +151,12 @@ for i, g in enumerate(bdf.glyphs):
         except: pass
     ffg = f.createChar(e,gn)
     ffg.foreground = l
-    if is_mono:
-        ffg.width = int(block_size*quad_width)
+    if g.bbW > 0:
+        ffg.width = int(block_size * g.bbW)
+    elif is_mono:
+        ffg.width = int(block_size * quad_width)
     else:
-        ffg.width = int(block_size*(g.advance))
+        ffg.width = int(block_size * g.advance)
 
 f.selection.all()
 known_encodings = {

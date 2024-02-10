@@ -1,0 +1,101 @@
+#!/usr/bin/env python3
+
+from rich import print
+import argparse
+import sys
+# import prettytable
+# import re
+try:
+    import fontforge
+except ImportError as ie:
+    print(f"FontForge (fontforge.org) must be separately installed, not available as pip package! {ie}", file=sys.stderr)
+    sys.exit(1)
+# import glob
+# import os
+# import warnings
+from PIL import Image
+
+def ASCII():
+    return [i for i in range(128)]
+
+def CP437():
+    return [ord(i.to_bytes(1).decode('cp437')) for i in range(256)]
+
+def CP437E():
+    cp = CP437()
+    cp[1:32] = map(ord, '☺☻♥♦♣♠•◘○◙♂♀♪♫☼►◄↕‼¶§▬↨↑↓→←∟↔▲▼')
+    return cp
+
+CPs = {
+    'ascii': ASCII,
+    '437': CP437,
+    '437e': CP437E,
+}
+
+def pos_to_contour(x, y, block_size):
+    pos_x, pos_y = x*block_size, y*block_size
+    c = fontforge.contour()
+    c.moveTo(pos_x, pos_y)
+    c.lineTo(pos_x+block_size, pos_y)
+    c.lineTo(pos_x+block_size, pos_y+block_size)
+    c.lineTo(pos_x, pos_y+block_size)
+    c.closed = True
+    return c
+
+def add_glyph(font, code, pixels, x0, y0, x1, y1, lmargin, rmargin):
+    glyph = font.createChar(code)
+    layer = fontforge.layer()
+    block_size = 1000 / (y1-y0)
+    for dy in range(y1-y0):
+        y = y1-dy-1
+        for dx in range(x1-x0-lmargin-rmargin):
+            x = x0+dx+lmargin
+            px = pixels[x, y]
+            if ((len(px) == 4 or len(px) == 2) and px[-1] == 255) or ((len(px) == 1 or len(px) == 3) and all(not ch for ch in px)):
+                layer += pos_to_contour(dx, dy, block_size)
+    # print(glyph.__dir__())
+    # 1/0
+    glyph.foreground = layer
+    glyph.width = int(block_size * (x1 - x0 - lmargin - rmargin))
+
+def convert(cp, width, height, lmargin, rmargin, inf, outf):
+    img = Image.open(inf)
+    pixels = img.load()
+    xs, ys = img.size
+    xcount = xs // width
+    ycount = ys // height
+    if xcount * ycount != len(cp):
+        print('Warning: codepage glyph count mismatch!')
+    font = fontforge.font()
+    font.ascent = 1000
+    font.descent = 0
+    for y in range(ycount):
+        for x in range(xcount):
+            i = y*xcount + x
+            if i >= len(cp):
+                break
+            add_glyph(font, cp[i], pixels, x*width, y*height, (x+1)*width, (y+1)*height, lmargin, rmargin)
+        if i >= len(cp):
+            break
+    font.save('output.sfd')
+    font.generate(outf)
+
+def main():
+    parser = argparse.ArgumentParser(description="Convert bitmap glyphset image to OpenType font with pixel squares as outlines")
+    parser.add_argument('--width', type=int, help="Glyph width")
+    parser.add_argument('--height', type=int, help="Glyph height")
+    parser.add_argument('--lmargin', type=int, default=0, help="Left glyph margin")
+    parser.add_argument('--rmargin', type=int, default=0, help="Right glyph margin")
+    parser.add_argument('--cp', choices=['ascii', '437e'], default='ascii', help="Codepage to use")
+    parser.add_argument('infile')
+    parser.add_argument('outfile')
+    args = parser.parse_args()
+    if args.width is None or args.height is None:
+        print('Need to specify glyph width & height!')
+        sys.exit(2)
+    cp = CPs[args.cp]()
+    print(f'Converting {len(cp)} characters!')
+    convert(cp, args.width, args.height, args.lmargin, args.rmargin, args.infile, args.outfile)
+
+if __name__ == '__main__':
+    main()
